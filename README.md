@@ -23,7 +23,7 @@ Le contrat d'API commun est dans [`docs/openapi.yaml`](docs/openapi.yaml) (v1.1.
 ## Installation
 
 ```bash
-git clone <url-du-depot> babel
+git clone https://github.com/MaxX-J/bibliotheque-de-babel.git babel
 cd babel
 composer install
 cp .env.example .env
