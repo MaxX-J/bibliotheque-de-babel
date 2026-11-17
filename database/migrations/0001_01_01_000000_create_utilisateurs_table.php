@@ -4,27 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * UTILISATEUR (V19, M1, M9, M10, A1, A2, A3).
+ */
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('utilisateurs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('pseudo', 50)->unique();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('mot_de_passe_hache');
+            $table->enum('role', ['membre', 'admin'])->default('membre');
+            $table->timestamp('suspendu_le')->nullable();
+            $table->timestamp('derniere_connexion_le')->nullable();
+            // Colonne technique de Laravel pour « rester connecté » au back-office.
             $table->rememberToken();
-            $table->timestamps();
-        });
-
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+            $table->timestamp('cree_le')->nullable();
         });
 
         Schema::create('sessions', function (Blueprint $table) {
@@ -37,13 +34,9 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('utilisateurs');
     }
 };
