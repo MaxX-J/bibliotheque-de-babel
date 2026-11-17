@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\App\CompteController;
+use App\Http\Controllers\App\InfosController;
+use App\Http\Controllers\App\LectureController;
 use App\Http\Controllers\Reseau\DecouverteController;
 use App\Http\Controllers\Reseau\IdentiteController;
 use App\Http\Controllers\Reseau\PageController;
@@ -31,6 +33,13 @@ Route::middleware('throttle:reseau')->group(function () {
 
 // Porte application : l'application web Angular. Déclarer /app/hasard avant les routes {adresse}.
 Route::prefix('app')->group(function () {
+    // Configuration et lecture, ouvertes aux visiteurs ; un jeton de membre est pris en compte.
+    Route::middleware('throttle:application')->group(function () {
+        Route::get('/infos', InfosController::class);
+        Route::get('/hasard', [LectureController::class, 'hasard']);
+        Route::get('/pages/{adresse}', [LectureController::class, 'page']);
+    });
+
     // Comptes (V19, M1, M9, M10).
     Route::middleware('throttle:comptes')->group(function () {
         Route::post('/auth/inscription', [CompteController::class, 'inscription']);

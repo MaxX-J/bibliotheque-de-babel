@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reseau;
 
+use App\Bibliotheque\Popularite;
 use App\Exceptions\ErreurApi;
 use App\Http\Controllers\Controller;
 use App\Http\Requetes\Pagination;
@@ -10,7 +11,6 @@ use App\Models\Collection;
 use App\Models\CollectionPage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Ce que nos membres ont publié, pour les autres bibliothèques (B3, B4).
@@ -76,18 +76,11 @@ class DecouverteController extends Controller
     {
         $taille = Pagination::taille($request);
 
-        $votes = DB::table('votes')->select('adresse_id', DB::raw('SUM(valeur) AS total'))->groupBy('adresse_id');
-        $marquePages = DB::table('marque_pages')->select('adresse_id', DB::raw('COUNT(*) AS total'))->groupBy('adresse_id');
-        $score = 'COALESCE(v.total, 0) + COALESCE(m.total, 0)';
-
-        $pages = Adresse::query()
+        $pages = Popularite::adressesAvecScore()
             ->with('bibliotheque')
-            ->select('adresses.*', DB::raw("{$score} AS score"))
-            ->leftJoinSub($votes, 'v', 'v.adresse_id', '=', 'adresses.id')
-            ->leftJoinSub($marquePages, 'm', 'm.adresse_id', '=', 'adresses.id')
             ->whereNotNull('adresses.page')
             ->whereNull('adresses.texte_banni_id')
-            ->whereRaw("{$score} > 0")
+            ->tap(Popularite::scorePositif(...))
             ->orderByDesc('score')
             ->orderBy('adresses.id')
             ->limit($taille)

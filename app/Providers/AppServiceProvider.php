@@ -27,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('reseau', fn (Request $request) => Limit::perMinute(config('bibliotheque.quota_par_minute'))
             ->by($request->ip()));
 
+        // Lecture par l'application web : plus large, un lecteur tourne les pages vite.
+        RateLimiter::for('application', fn (Request $request) => Limit::perMinute(config('bibliotheque.quota_application_par_minute'))
+            ->by($request->ip()));
+
         // Inscription et connexion : contre les essais de mots de passe en rafale.
         RateLimiter::for('comptes', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
     }
