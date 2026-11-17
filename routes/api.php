@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Reseau\DecouverteController;
+use App\Http\Controllers\Reseau\IdentiteController;
+use App\Http\Controllers\Reseau\PageController;
+use App\Http\Controllers\Reseau\RechercheController;
+use App\Http\Controllers\Reseau\TexteBanniController;
+use App\Http\Middleware\JetonReseau;
+use App\Http\Middleware\PasDeCache;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -10,7 +17,14 @@ use Illuminate\Support\Facades\Route;
 
 // Porte réseau : ouverte en lecture, débit limité (B1 à B6).
 Route::middleware('throttle:reseau')->group(function () {
-    //
+    Route::get('/identite', IdentiteController::class);
+    Route::get('/pages/{adresse}', [PageController::class, 'show']);
+    Route::post('/lectures', [PageController::class, 'lectures']);
+    Route::post('/recherches', RechercheController::class);
+    Route::get('/collections', [DecouverteController::class, 'collections']);
+    Route::get('/collections/{id}', [DecouverteController::class, 'collection']);
+    Route::get('/pages-populaires', [DecouverteController::class, 'pagesPopulaires']);
+    Route::get('/textes-bannis', TexteBanniController::class)->middleware([PasDeCache::class, JetonReseau::class]);
 });
 
 // Porte application : l'application web Angular. Déclarer /app/hasard avant les routes {adresse}.

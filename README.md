@@ -31,9 +31,12 @@ php artisan key:generate
 php artisan babel:cle
 php artisan babel:verifier
 php artisan migrate
+php artisan bibliotheque:installer <identifiant> "<nom>" --description="…"
 ```
 
-`php artisan babel:verifier` doit finir par « Tout est prêt ».
+`php artisan babel:verifier` doit finir par « Tout est prêt ». L'identifiant est celui que remet la plateforme du réseau ; il ne change jamais.
+
+Dans `.env`, renseigner aussi le jeton réseau remis par la plateforme (`BIBLIOTHEQUE_JETON_RESEAU`) : sans lui, `GET /api/v1/textes-bannis` reste fermée.
 
 ### La clé du moteur
 
@@ -58,7 +61,7 @@ php artisan test
 ./vendor/bin/pint --test
 ```
 
-La CI GitHub Actions lance les deux à chaque push et à chaque pull request.
+La CI GitHub Actions lance les deux à chaque push et à chaque pull request. Les tests de l'API vérifient chaque réponse contre les schémas de `docs/openapi.yaml`.
 
 ## Fonctions du moteur
 
