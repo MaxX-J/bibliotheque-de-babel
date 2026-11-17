@@ -30,6 +30,19 @@ class ErreurApi extends RuntimeException
         return new self([['code' => $code, 'champ' => $champ, 'message' => $message]], $statut, $entetes);
     }
 
+    /**
+     * Des erreurs d'adresse ou de recherche : 404 s'il ne reste que des ERR_OUT_OF_BOUNDS
+     * (l'adresse est bien écrite, la page n'existe pas), 422 dès qu'une erreur de forme y figure.
+     *
+     * @param  list<array{code: string, champ: string|null, message: string}>  $erreurs
+     */
+    public static function depuisListe(array $erreurs): self
+    {
+        $seulementHorsLimites = array_filter($erreurs, fn (array $erreur) => $erreur['code'] !== 'ERR_OUT_OF_BOUNDS') === [];
+
+        return new self($erreurs, $seulementHorsLimites ? 404 : 422);
+    }
+
     public static function introuvable(?string $champ = null, string $message = 'Cette ressource n\'existe pas.'): self
     {
         return self::une('ERR_NOT_FOUND', $champ, $message, 404);

@@ -28,10 +28,7 @@ class RenduDesErreurs
                 return null;
             }
 
-            $erreurs = $e->versTableau();
-            $seulementHorsLimites = collect($erreurs)->every(fn (array $erreur) => $erreur['code'] === 'ERR_OUT_OF_BOUNDS');
-
-            return (new ErreurApi($erreurs, $seulementHorsLimites ? 404 : 422))->render();
+            return ErreurApi::depuisListe($e->versTableau())->render();
         });
 
         $exceptions->render(function (ValidationException $e, Request $request) {
