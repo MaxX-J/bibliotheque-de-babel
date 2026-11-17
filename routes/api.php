@@ -3,6 +3,8 @@
 use App\Http\Controllers\App\CompteController;
 use App\Http\Controllers\App\InfosController;
 use App\Http\Controllers\App\LectureController;
+use App\Http\Controllers\App\MarquePageController;
+use App\Http\Controllers\App\VoteController;
 use App\Http\Controllers\Reseau\DecouverteController;
 use App\Http\Controllers\Reseau\IdentiteController;
 use App\Http\Controllers\Reseau\PageController;
@@ -52,5 +54,16 @@ Route::prefix('app')->group(function () {
         Route::get('/moi', [CompteController::class, 'moi']);
         Route::patch('/moi', [CompteController::class, 'modifier']);
         Route::delete('/moi', [CompteController::class, 'supprimer']);
+
+        // Votes (M7).
+        Route::put('/pages/{adresse}/vote', [VoteController::class, 'voter']);
+        Route::delete('/pages/{adresse}/vote', [VoteController::class, 'retirer']);
+        Route::get('/moi/votes', [VoteController::class, 'mesVotes']);
+
+        // Marque-pages (M2, M3, M13).
+        Route::get('/moi/marque-pages', [MarquePageController::class, 'index']);
+        Route::post('/moi/marque-pages', [MarquePageController::class, 'store']);
+        Route::patch('/moi/marque-pages/{id}', [MarquePageController::class, 'update']);
+        Route::delete('/moi/marque-pages/{id}', [MarquePageController::class, 'destroy']);
     });
 });

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\App;
 
 use App\Bibliotheque\Hasard;
+use App\Bibliotheque\PageDesignee;
 use App\Bibliotheque\Popularite;
-use App\Bibliotheque\Validation;
-use App\Exceptions\ErreurApi;
 use App\Http\Controllers\Controller;
 use App\Http\Ressources\AnnotationRessource;
 use App\Models\ActiviteJour;
@@ -46,49 +45,25 @@ class LectureController extends Controller
      */
     public function page(Request $request, string $adresse, Moteur $moteur, ClientPair $pairs): JsonResponse
     {
-        $valide = Validation::exigerPage($adresse);
-        $bibliotheque = self::bibliotheque($request->query('bibliotheque'));
+        $page = PageDesignee::depuis($adresse, $request->query('bibliotheque'));
+        $bibliotheque = $page->bibliotheque;
         $lecteur = self::membre($request);
 
         $texte = $bibliotheque->est_locale ? $moteur->lire($adresse) : $pairs->lirePage($bibliotheque, $adresse);
         ActiviteJour::compter('pages_lues');
 
-        $enregistree = Adresse::query()
-            ->where('bibliotheque_id', $bibliotheque->id)
-            ->where('empreinte', Adresse::empreinteDe($valide))
-            ->first();
+        $enregistree = $page->trouver();
 
         return response()->json([
             'bibliotheque' => $bibliotheque->identifiant,
             'adresse' => $adresse,
-            'adresse_livre' => (string) $valide->livre(),
+            'adresse_livre' => (string) $page->adresse->livre(),
             'texte' => $texte,
             'score' => Popularite::scoreDe($enregistree),
             'mon_vote' => self::monVote($enregistree, $lecteur),
             'marque_page' => self::monMarquePage($enregistree, $lecteur),
             'annotations' => self::annotations($enregistree, $lecteur),
         ]);
-    }
-
-    /**
-     * Absente : la bibliothèque locale. Inconnue de notre serveur : 404 ERR_UNKNOWN_LIBRARY.
-     */
-    private static function bibliotheque(mixed $identifiant): Bibliotheque
-    {
-        if ($identifiant === null) {
-            return Bibliotheque::locale();
-        }
-
-        $bibliotheque = is_string($identifiant)
-            ? Bibliotheque::query()->where('identifiant', $identifiant)->first()
-            : null;
-
-        return $bibliotheque ?? throw ErreurApi::une(
-            'ERR_UNKNOWN_LIBRARY',
-            'bibliotheque',
-            'Cette bibliothèque ne fait pas partie du réseau.',
-            404,
-        );
     }
 
     /**
