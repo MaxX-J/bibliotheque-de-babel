@@ -26,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
         // est produite par App\Exceptions\RenduDesErreurs.
         RateLimiter::for('reseau', fn (Request $request) => Limit::perMinute(config('bibliotheque.quota_par_minute'))
             ->by($request->ip()));
+
+        // Inscription et connexion : contre les essais de mots de passe en rafale.
+        RateLimiter::for('comptes', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
     }
 }

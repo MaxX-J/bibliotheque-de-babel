@@ -43,6 +43,21 @@ class ErreurApi extends RuntimeException
         return new self($erreurs, $seulementHorsLimites ? 404 : 422);
     }
 
+    public static function identifiantsIncorrects(): self
+    {
+        return self::une('ERR_INVALID_CREDENTIALS', null, 'Email ou mot de passe incorrect.', 401);
+    }
+
+    public static function doublon(string $champ, string $message): self
+    {
+        return self::une('ERR_ALREADY_EXISTS', $champ, $message, 409);
+    }
+
+    public static function compteSuspendu(): self
+    {
+        return self::une('ERR_ACCOUNT_SUSPENDED', null, 'Ce compte est suspendu.', 403);
+    }
+
     public static function introuvable(?string $champ = null, string $message = 'Cette ressource n\'existe pas.'): self
     {
         return self::une('ERR_NOT_FOUND', $champ, $message, 404);

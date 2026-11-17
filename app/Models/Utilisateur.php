@@ -37,6 +37,38 @@ class Utilisateur extends Authenticatable
         ];
     }
 
+    /**
+     * Le membre tel que le décrit le contrat (schéma Utilisateur). Jamais le mot de passe.
+     *
+     * @return array{id: string, pseudo: string, email: string, role: string, cree_le: string}
+     */
+    public function versProfil(): array
+    {
+        return [
+            'id' => (string) $this->id,
+            'pseudo' => $this->pseudo,
+            'email' => $this->email,
+            'role' => $this->role,
+            'cree_le' => $this->cree_le->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Ouvre une session : un jeton d'API Sanctum, à envoyer dans Authorization: Bearer.
+     *
+     * @return array{jeton: string, type: string, utilisateur: array<string, string>}
+     */
+    public function ouvrirUneSession(): array
+    {
+        $this->forceFill(['derniere_connexion_le' => now()])->save();
+
+        return [
+            'jeton' => $this->createToken('application-web')->plainTextToken,
+            'type' => 'Bearer',
+            'utilisateur' => $this->versProfil(),
+        ];
+    }
+
     public function estAdmin(): bool
     {
         return $this->role === 'admin';

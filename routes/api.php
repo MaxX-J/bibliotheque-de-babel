@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\App\CompteController;
 use App\Http\Controllers\Reseau\DecouverteController;
 use App\Http\Controllers\Reseau\IdentiteController;
 use App\Http\Controllers\Reseau\PageController;
 use App\Http\Controllers\Reseau\RechercheController;
 use App\Http\Controllers\Reseau\TexteBanniController;
+use App\Http\Middleware\CompteActif;
 use App\Http\Middleware\JetonReseau;
 use App\Http\Middleware\PasDeCache;
 use Illuminate\Support\Facades\Route;
@@ -29,5 +31,17 @@ Route::middleware('throttle:reseau')->group(function () {
 
 // Porte application : l'application web Angular. Déclarer /app/hasard avant les routes {adresse}.
 Route::prefix('app')->group(function () {
-    //
+    // Comptes (V19, M1, M9, M10).
+    Route::middleware('throttle:comptes')->group(function () {
+        Route::post('/auth/inscription', [CompteController::class, 'inscription']);
+        Route::post('/auth/connexion', [CompteController::class, 'connexion']);
+    });
+
+    // Routes « membre » : 401 sans jeton valide, 403 pour un compte suspendu.
+    Route::middleware(['auth:sanctum', CompteActif::class])->group(function () {
+        Route::post('/auth/deconnexion', [CompteController::class, 'deconnexion']);
+        Route::get('/moi', [CompteController::class, 'moi']);
+        Route::patch('/moi', [CompteController::class, 'modifier']);
+        Route::delete('/moi', [CompteController::class, 'supprimer']);
+    });
 });
