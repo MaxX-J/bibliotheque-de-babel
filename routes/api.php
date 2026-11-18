@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\App\CollectionController;
 use App\Http\Controllers\App\CompteController;
 use App\Http\Controllers\App\InfosController;
 use App\Http\Controllers\App\LectureController;
@@ -65,5 +66,15 @@ Route::prefix('app')->group(function () {
         Route::post('/moi/marque-pages', [MarquePageController::class, 'store']);
         Route::patch('/moi/marque-pages/{id}', [MarquePageController::class, 'update']);
         Route::delete('/moi/marque-pages/{id}', [MarquePageController::class, 'destroy']);
+
+        // Collections (M4, M5, M13).
+        Route::get('/moi/collections', [CollectionController::class, 'index']);
+        Route::post('/moi/collections', [CollectionController::class, 'store']);
+        Route::get('/moi/collections/{id}', [CollectionController::class, 'show']);
+        Route::patch('/moi/collections/{id}', [CollectionController::class, 'update']);
+        Route::delete('/moi/collections/{id}', [CollectionController::class, 'destroy']);
+        Route::post('/moi/collections/{id}/pages', [CollectionController::class, 'ajouterPage']);
+        Route::put('/moi/collections/{id}/pages', [CollectionController::class, 'ordonnerPages']);
+        Route::delete('/moi/collections/{id}/pages/{position}', [CollectionController::class, 'retirerPage']);
     });
 });
